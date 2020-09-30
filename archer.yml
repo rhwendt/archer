@@ -1,0 +1,47 @@
+---
+- name: setup arch linux
+  hosts: localhost
+  connection: local
+  tasks:
+    # set the kyboard layout (default is EN) - skipping
+
+    # verify the boot method
+    - name: verify boot method
+      command: ls /sys/firmware/efi/efivars
+      register: boot_method
+      ignore_errors: true
+
+    - name: set efi to true if boot method is efi
+      set_fact:
+        efi: true
+      when: boot_method.rc == 0
+
+    - name: set efi to false if efivars dont exist
+      set_fact:
+        efi: false
+      when: boot_method.rc > 1
+
+    # check internet connection
+    - name: ping archlinux.org
+      command: ping archlinux.org -c 3
+      register: ping_arch
+
+    - name: check if the ping failed
+      debug:
+        var: ping_arch.stdout_lines
+      failed_when: ping_arch.rc > 1
+
+    # update the system clock
+    - name: update the system clock
+      command: timedatectl set-ntp true
+
+      # lets check out the disks
+    - name: collect only facts about hardware
+      setup:
+        gather_subset:
+        - hardware
+
+    - name: output disks
+      debug:
+        msg: "{{ hostvars[inventory_hostname].ansible_devices | disks }}"
+
