@@ -3,6 +3,12 @@
   hosts: localhost
   connection: local
   tasks:
+    # get hardware facts
+    - name: collect only facts about hardware
+      setup:
+        gather_subset:
+        - hardware
+
     # set the kyboard layout (default is EN) - skipping
 
     # verify the boot method
@@ -35,13 +41,28 @@
     - name: update the system clock
       command: timedatectl set-ntp true
 
-      # lets check out the disks
-    - name: collect only facts about hardware
-      setup:
-        gather_subset:
-        - hardware
+    # figure out the cpu vendor
+    - name: set cpu_vendor to amd
+      set_fact:
+        cpu_vendor: amd
+      when: "'AMD' in hostvars[inventory_hostname].ansible_processor[1]"
 
+    - name: set cpu_vendor to intel
+      set_fact:
+        cpu_vendor: intel
+      when: "'Intel' in hostvars[inventory_hostname].ansible_processor[1]"
+
+    # select the disk to partition
     - name: output disks
       debug:
         msg: "{{ hostvars[inventory_hostname].ansible_devices | disks }}"
 
+    - pause:
+        prompt: "Select device to partition. Example: /dev/sdx"
+      register: selected_disk
+      failed_when: "selected_disk.user_input is not match('^(\/dev\/sd[a-z]{1})$')"
+
+    - debug:
+        msg:
+          - "cpu vendor: {{ cpu_vendor }}"
+          - "selected_disk: {{ selected_disk.user_input }}"
