@@ -104,3 +104,15 @@
     - name: mount the boot partition to /mnt/boot
       shell: mount "{{selected_disk.user_input}}1" /mnt/boot
 
+    # install essential packages
+    - name: install essential packages
+      shell: pacstrap /mnt base linux linux-firmware
+
+    # generate fstab
+    - name: generate fstab
+      shell: genfstab -U /mnt >> /mnt/etc/fstab
+
+    # arch-chroot
+    - name: chroot into new system
+      shell: arch-chroot /mnt
+
