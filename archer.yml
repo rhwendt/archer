@@ -62,18 +62,30 @@
       register: selected_disk
       failed_when: "selected_disk.user_input is not match('^(\/dev\/sd[a-z]{1})$')"
 
+    # partition the disk
     - name: create the boot partition
       community.general.parted:
         device: "{{selected_disk.user_input}}"
         number: 1
         state: present
-        fs_type: ef00
-        part_end: 512MiB
+        flasgs: [ esp ]
+        part_end: 512MB
 
-    - name: create the user partition
+    - name: create the root partition
       community.general.parted:
         device: "{{selected_disk.user_input}}"
         number: 2
         state: present
         fs_type: ext4
-        part_start: 512MiB
+        part_start: 512MB
+
+    # format the partitions
+    - name: format the boot partition
+      community.general.filesystem:
+        fstype: fat32
+        dev: "{{selected_disk.user_input}}1"
+
+    - name: format the root partition
+      community.general.filesystem:
+        fstype: ext4
+        dev: "{{selected_disk.user_input}}2"
