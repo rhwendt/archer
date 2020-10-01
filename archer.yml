@@ -82,10 +82,25 @@
     # format the partitions
     - name: format the boot partition
       community.general.filesystem:
-        fstype: fat32
+        fstype: vfat
         dev: "{{selected_disk.user_input}}1"
 
     - name: format the root partition
       community.general.filesystem:
         fstype: ext4
         dev: "{{selected_disk.user_input}}2"
+
+    # mount the root partition
+    - name: mount the root partition to /mnt
+      shell: mount "{{selected_disk.user_input}}2" /mnt
+
+    # create the /mnt/boot directory
+    - name: create the /mnt/boot directory
+      file:
+        path: /mnt/boot
+        state: directory
+
+    # mount the boot partition
+    - name: mount the boot partition to /mnt/boot
+      shell: mount "{{selected_disk.user_input}}1" /mnt/boot
+
