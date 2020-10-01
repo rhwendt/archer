@@ -62,7 +62,18 @@
       register: selected_disk
       failed_when: "selected_disk.user_input is not match('^(\/dev\/sd[a-z]{1})$')"
 
-    - debug:
-        msg:
-          - "cpu vendor: {{ cpu_vendor }}"
-          - "selected_disk: {{ selected_disk.user_input }}"
+    - name: create the boot partition
+      community.general.parted:
+        device: "{{selected_disk.user_input}}"
+        number: 1
+        state: present
+        fs_type: ef00
+        part_end: 512MiB
+
+    - name: create the user partition
+      community.general.parted:
+        device: "{{selected_disk.user_input}}"
+        number: 2
+        state: present
+        fs_type: ext4
+        part_start: 512MiB
