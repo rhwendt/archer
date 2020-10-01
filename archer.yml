@@ -68,7 +68,7 @@
         device: "{{selected_disk.user_input}}"
         number: 1
         state: present
-        flasgs: [ esp ]
+        flags: [ esp ]
         part_end: 512MB
 
     - name: create the root partition
