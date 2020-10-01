@@ -12,7 +12,3 @@ git clone https://github.com/rhwendt/archer.git
 # change to archer dir
 cd archer
 
-# run the playbook
-ansible-playbook archer.yml
-
-
