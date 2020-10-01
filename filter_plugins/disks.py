@@ -1,9 +1,12 @@
 #!/usr/bin/python
 
+
 def get_disks(d):
     i = 0
     output = []
     for k in d.keys():
+        if 'loop' in k:
+            continue
         disk_num = i
         device = f"/dev/{k}"
         size = d[k]["size"]
