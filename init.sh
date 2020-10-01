@@ -7,4 +7,10 @@ pacman -Sy
 pacman -S git ansible --noconfirm
 
 # clone repos
-git clone https://github.com/rhwendt/archer.git && cd archer
+git clone https://github.com/rhwendt/archer.git
+
+# change to archer dir
+cd archer
+
+# run the playbook
+ansible-playbook archer.yml
