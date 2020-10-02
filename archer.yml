@@ -114,5 +114,10 @@
 
     # arch-chroot
     - name: chroot into new system
-      shell: arch-chroot /mnt
+      ansible.general.chroot:
+        chroot_exe: arch-chroot
+        executable: /usr/bin/zsh
+        remote_addr: /mnt
+
+
 
