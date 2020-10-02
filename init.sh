@@ -16,5 +16,5 @@ cd archer
 ansible-galaxy collection install community.general
 
 # run playbook
-ansible-playbook archer.yml
+ansible-playbook archer.yml --tags init
 

@@ -8,6 +8,7 @@
       setup:
         gather_subset:
         - hardware
+      tags: init
 
     # set the kyboard layout (default is EN) - skipping
 
@@ -16,51 +17,61 @@
       command: ls /sys/firmware/efi/efivars
       register: boot_method
       ignore_errors: true
+      tags: init
 
     - name: set efi to true if boot method is efi
       set_fact:
         efi: true
       when: boot_method.rc == 0
+      tags: init
 
     - name: set efi to false if efivars dont exist
       set_fact:
         efi: false
       when: boot_method.rc > 1
+      tags: init
 
     # check internet connection
     - name: ping archlinux.org
       command: ping archlinux.org -c 3
       register: ping_arch
+      tags: init
 
     - name: check if the ping failed
       debug:
         var: ping_arch.stdout_lines
       failed_when: ping_arch.rc > 1
+      tags: init
 
     # update the system clock
     - name: update the system clock
       command: timedatectl set-ntp true
+      tags: init
 
     # figure out the cpu vendor
     - name: set cpu_vendor to amd
       set_fact:
         cpu_vendor: amd
       when: "'AMD' in hostvars[inventory_hostname].ansible_processor[1]"
+      tags: init
 
     - name: set cpu_vendor to intel
       set_fact:
         cpu_vendor: intel
       when: "'Intel' in hostvars[inventory_hostname].ansible_processor[1]"
+      tags: init
 
     # select the disk to partition
     - name: output disks
       debug:
         msg: "{{ hostvars[inventory_hostname].ansible_devices | disks }}"
+      tags: init
 
     - pause:
         prompt: "Select device to partition. Example: /dev/sdx"
       register: selected_disk
       failed_when: "selected_disk.user_input is not match('^(\/dev\/sd[a-z]{1})$')"
+      tags: init
 
     # partition the disk
     - name: create the boot partition
@@ -70,6 +81,7 @@
         state: present
         flags: [ esp ]
         part_end: 512MB
+      tags: init
 
     - name: create the root partition
       community.general.parted:
@@ -78,42 +90,74 @@
         state: present
         fs_type: ext4
         part_start: 512MB
+      tags: init
 
     # format the partitions
     - name: format the boot partition
       community.general.filesystem:
         fstype: vfat
         dev: "{{selected_disk.user_input}}1"
+      tags: init
 
     - name: format the root partition
       community.general.filesystem:
         fstype: ext4
         dev: "{{selected_disk.user_input}}2"
+      tags: init
 
     # mount the root partition
     - name: mount the root partition to /mnt
       shell: mount "{{selected_disk.user_input}}2" /mnt
+      tags: init
 
     # create the /mnt/boot directory
     - name: create the /mnt/boot directory
       file:
         path: /mnt/boot
         state: directory
+      tags: init
 
     # mount the boot partition
     - name: mount the boot partition to /mnt/boot
       shell: mount "{{selected_disk.user_input}}1" /mnt/boot
+      tags: init
 
     # install essential packages
     - name: install essential packages
-      shell: pacstrap /mnt base linux linux-firmware
+      shell: pacstrap /mnt base linux linux-firmware ansible
+      tags: init
 
     # generate fstab
     - name: generate fstab
       shell: genfstab -U /mnt >> /mnt/etc/fstab
+      tags: init
 
-    - name: run post install script
-      script: post.sh
+    # create project directory in new environment
+    - name: create project directory in new environment
+      file:
+        path: /mnt/tmp/archer
+        state: directory
+      tags: init
+
+    # copy project folder to new environment
+    - name: copy project dir to /mnt/tmp/archer
+      copy:
+        src: /root/archer
+        dest: /mnt/tmp/archer
+      tags: init
+
+    # display message to user
+    - debug:
+        msg:
+          - "Run the following commands!"
+          - ""
+          - "arch-chroot /mnt"
+          - ""
+          - "cd /tmp/archer"
+          - ""
+          - "source post.sh"
+      tags: init
+
 
 
 
