@@ -143,7 +143,7 @@
     - name: copy project dir to /mnt/tmp/archer
       copy:
         src: /root/archer
-        dest: /mnt/tmp/archer
+        dest: /mnt/root/archer
       tags: init
 
     # display message to user
@@ -153,7 +153,7 @@
           - ""
           - "arch-chroot /mnt"
           - ""
-          - "cd /tmp/archer"
+          - "cd /root/archer"
           - ""
           - "source post.sh"
       tags: init
