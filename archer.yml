@@ -112,12 +112,8 @@
     - name: generate fstab
       shell: genfstab -U /mnt >> /mnt/etc/fstab
 
-    # arch-chroot
-    - name: chroot into new system
-      community.general.chroot:
-        chroot_exe: arch-chroot
-        executable: /usr/bin/zsh
-        remote_addr: /mnt
+    - name: run post install script
+      script: post.sh
 
 
 
