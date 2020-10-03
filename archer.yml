@@ -227,6 +227,10 @@
         dest: /boot/loader/loader.conf
       tags: post
 
+    - set_fact:
+        uuid: "{{ hostvars[inventory_hostname].ansible_mounts | rootfs_uuid }}"
+      tags: post
+
     # create /boot/loader/entries/arch.conf
     - name: create /boot/loader/entries/arch.conf
       template:
