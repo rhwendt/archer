@@ -2,6 +2,21 @@
 - name: setup arch linux
   hosts: localhost
   connection: local
+  vars:
+    locale: en_US.UTF-8
+    hostname: leviathan
+    domain: thisbytes.net
+  vars_prompt:
+    - name: root_password
+      prompt: "Enter new root password: "
+      tags: post
+    - name: new_username
+      prompt: "Enter new username: "
+      private: no
+      tags: post
+    - name: new_username_password
+      prompt: "Enter new {{ new_username }} password: "
+      tags: post
   tasks:
     # get hardware facts
     - name: collect only facts about hardware
@@ -124,7 +139,7 @@
 
     # install essential packages
     - name: install essential packages
-      shell: pacstrap /mnt base linux linux-firmware ansible
+      shell: pacstrap /mnt base base-devel linux linux-firmware ansible
       tags: init
 
     # generate fstab
@@ -144,7 +159,160 @@
           - "source post.sh"
       tags: init
 
+    #
     # begin post install tasks
+    #
+    - name: set the hardware clock
+      shell: hwclock --systohc
+      tags: post
 
+    # set the locale
+    - name: set the locale
+      community.general.locale_gen:
+        name: "{{ locale }}"
+        state: present
+      tags: post
 
+    # set the lang
+    - name: set the lang
+      copy:
+        dest: /etc/locale.conf
+        content: "LANG={{ locale }}"
+      tags: post
 
+    # set the hostname
+    - name: create /etc/hostname
+      copy:
+        dest: /etc/hostname
+        content: "{{ hostname }}"
+      tags: post
+
+    # create the hosts file
+    - name: create /etc/hosts
+      template:
+        src: templates/hosts.j2
+        dest: /etc/hosts
+      tags: post
+
+    # install packages
+    - name: install remaining packages
+      community.general.pacman:
+        name:
+          - gnome
+          - gdm
+          - sudo
+          - "{{ cpu_vendor }}-ucode"
+          - vi
+        state: present
+        update_cache: yes
+      tags: post
+
+    # update root password
+    - name: update root password
+      user:
+        name: root
+        password: "{{ root_password }}"
+        update_password: always
+      tags: post
+
+    # regenerate initramfs
+    - name: regenerate initramfs
+      shell: mkinitcpio -P
+      tags: post
+
+    # install boot loader
+    - name: install boot loader
+      shell: bootctl install
+      tags: post
+
+    # create /boot/loader/loader.conf
+    - name: create /boot/loader/loader.conf
+      template:
+        src: templates/loader.j2
+        dest: /boot/loader/loader.conf
+      tags: post
+
+    # create /boot/loader/entries/arch.conf
+    - name: create /boot/loader/entries/arch.conf
+      template:
+        src: templates/archloader.j2
+        dest: /boot/loader/entries/arch.conf
+      tags: post
+
+    # add the sudo group
+    - name: ensure sudo group exists
+      group:
+        name: sudo
+        state: present
+      tags: post
+
+    # add local user
+    - name: add user "{{ new_username }}"
+      user:
+        name: "{{ new_username }}"
+        password: "{{ new_username_password }}"
+        groups: sudo
+        append: yes
+      tags: post
+
+    # update sudoers file
+    - name: update sudoers file
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: "^# %sudo ALL="
+        line: "%sudo ALL=(ALL) ALL"
+        validate: "/usr/sbin/visudo -cf %s"
+      tags: post
+
+    - git:
+        repo: https://github.com/kewlfft/ansible-aur.git
+        dest: /usr/share/ansible/plugins/modules
+    - user:
+        name: aur_builder
+        group: wheel
+    - lineinfile:
+        path: /etc/sudoers.d/11-install-aur_builder
+        line: 'aur_builder ALL=(ALL) NOPASSWD: /usr/bin/pacman'
+        create: yes
+        validate: 'visudo -cf %s'
+
+    - name: Install trizen using makepkg, skip if trizen is already installed
+      aur: name=trizen use=makepkg skip_installed=true
+      become: yes
+      become_user: aur_builder
+
+    - name: install packages from the AUR
+      aur:
+        use: trizen
+        name:
+          - google-chrome
+          - signal-desktop-bin
+          - pamac-aur
+        skip_installed: true
+      become: yes
+      become_user: aur_builder
+      tags: post
+
+    # enable services
+    - name: enable services
+      shell: "systemctl enable {{ item }}"
+      with_items:
+        - NetworkManager.service
+        - gdm.service
+      tags: post
+
+    - name: Prompt for reboot
+      pause:
+        prompt: |
+          A system reboot is required to complete the setup.
+          Reboot? (y/n):
+      run_once: yes
+      register: confirmation
+      tags: post
+
+    - name: reboot the system
+      command: reboot
+      become: yes
+      when: confirmation.user_input is search('y.*')
+      tags: post
