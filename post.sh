@@ -5,5 +5,8 @@ TIMEZONE=$(tzselect)
 echo "+ setting the timezone to $TIMEZONE"
 ln -sf /usr/share/zoneinfo/"$TIMEZONE" /etc/localtime
 
+# install ansible-aur in new system
+git clone https://github.com/kewlfft/ansible-aur.git ~/.ansible/plugins/modules/aur
+
 # run playbook
-ansible-playbook archer.yml --tags post --extra-vars "root_password=$root_password new_username=$new_username new_username_password=$new_username_password"
+ansible-playbook archer.yml --tags post

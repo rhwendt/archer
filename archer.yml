@@ -12,7 +12,9 @@
       setup:
         gather_subset:
         - hardware
-      tags: init
+      tags:
+        - init
+        - post
 
     # set the kyboard layout (default is EN) - skipping
 
@@ -52,18 +54,6 @@
       command: timedatectl set-ntp true
       tags: init
 
-    # figure out the cpu vendor
-    - name: set cpu_vendor to amd
-      set_fact:
-        cpu_vendor: amd
-      when: "'AMD' in hostvars[inventory_hostname].ansible_processor[1]"
-      tags: init
-
-    - name: set cpu_vendor to intel
-      set_fact:
-        cpu_vendor: intel
-      when: "'Intel' in hostvars[inventory_hostname].ansible_processor[1]"
-      tags: init
 
     # select the disk to partition
     - name: output disks
@@ -75,6 +65,19 @@
         prompt: "Select device to partition. Example: /dev/sdx"
       register: selected_disk
       failed_when: "selected_disk.user_input is not match('^(\/dev\/sd[a-z]{1})$')"
+      tags: init
+
+    - name: read device information
+      community.general.parted: "device={{ selected_disk.user_input }} unit=MiB"
+      register: disk_info
+      tags: init
+
+    - name: remove all partitions from disk
+      community.general.parted:
+        device: "{{ selected_disk.user_input }}"
+        number: "{{ item.num }}"
+        state: absent
+      loop: "{{ disk_info.partitions }}"
       tags: init
 
     # partition the disk
@@ -128,13 +131,19 @@
 
     # install essential packages
     - name: install essential packages
-      shell: pacstrap /mnt base base-devel linux linux-firmware ansible
+      shell: pacstrap /mnt base base-devel linux linux-firmware ansible git
       tags: init
 
     # generate fstab
     - name: generate fstab
       shell: genfstab -U /mnt >> /mnt/etc/fstab
       tags: init
+
+    # copy the project dir to /root/archer
+    - name: copy the project dir to new system
+      copy:
+        src: /root/archer/
+        dest: /mnt/root/archer/
 
     # display message to user
     - debug:
@@ -151,6 +160,20 @@
     #
     # begin post install tasks
     #
+
+    # figure out the cpu vendor
+    - name: set cpu_vendor to amd
+      set_fact:
+        cpu_vendor: amd
+      when: "'AMD' in hostvars[inventory_hostname].ansible_processor[1]"
+      tags: post
+
+    - name: set cpu_vendor to intel
+      set_fact:
+        cpu_vendor: intel
+      when: "'Intel' in hostvars[inventory_hostname].ansible_processor[1]"
+      tags: post
+
     - name: set the hardware clock
       shell: hwclock --systohc
       tags: post
