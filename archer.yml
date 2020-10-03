@@ -86,8 +86,10 @@
         device: "{{selected_disk.user_input}}"
         number: 1
         state: present
+        label: gpt
+        fstype: fat32
         flags: [ esp ]
-        part_end: 512MB
+        part_end: 513MiB
       tags: init
 
     - name: create the root partition
@@ -95,15 +97,14 @@
         device: "{{selected_disk.user_input}}"
         number: 2
         state: present
+        label: gpt
         fs_type: ext4
-        part_start: 512MB
+        part_start: 513MiB
       tags: init
 
     # format the partitions
     - name: format the boot partition
-      community.general.filesystem:
-        fstype: vfat
-        dev: "{{selected_disk.user_input}}1"
+      shell: mkfs.fat -F32 "{{selected_disk.user_input}}1"
       tags: init
 
     - name: format the root partition
@@ -218,7 +219,9 @@
           - vi
         state: present
         update_cache: yes
-      tags: post
+      tags:
+        - post
+        - packages
 
     # update root password
     - pause:
