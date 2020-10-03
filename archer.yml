@@ -132,20 +132,6 @@
       shell: genfstab -U /mnt >> /mnt/etc/fstab
       tags: init
 
-    # # create project directory in new environment
-    # - name: create project directory in new environment
-    #   file:
-    #     path: /mnt/tmp/archer
-    #     state: directory
-    #   tags: init
-
-    # # copy project folder to new environment
-    # - name: copy project dir to /mnt/tmp/archer
-    #   copy:
-    #     src: /root/archer
-    #     dest: /mnt/root/archer
-    #   tags: init
-
     # display message to user
     - debug:
         msg:
@@ -158,6 +144,7 @@
           - "source post.sh"
       tags: init
 
+    # begin post install tasks
 
 
 
