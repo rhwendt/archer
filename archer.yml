@@ -6,17 +6,6 @@
     locale: en_US.UTF-8
     hostname: leviathan
     domain: thisbytes.net
-  vars_prompt:
-    - name: root_password
-      prompt: "Enter new root password: "
-      tags: post
-    - name: new_username
-      prompt: "Enter new username: "
-      private: no
-      tags: post
-    - name: new_username_password
-      prompt: "Enter new {{ new_username }} password: "
-      tags: post
   tasks:
     # get hardware facts
     - name: collect only facts about hardware
