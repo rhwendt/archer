@@ -144,6 +144,7 @@
       copy:
         src: /root/archer/
         dest: /mnt/root/archer/
+      tags: init
 
     # display message to user
     - debug:
