@@ -15,6 +15,9 @@ cd archer
 # install galaxy collection
 ansible-galaxy collection install community.general
 
+# get ansible-aur
+git clone https://github.com/kewlfft/ansible-aur.git ~/.ansible/plugins/modules/aur
+
 # run playbook
 ansible-playbook archer.yml --tags init
 

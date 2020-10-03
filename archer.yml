@@ -197,10 +197,16 @@
       tags: post
 
     # update root password
+    - pause:
+        prompt: "Enter new root password: "
+        echo: no
+      register: root_password
+      tags: post
+
     - name: update root password
       user:
         name: root
-        password: "{{ root_password }}"
+        password: "{{ root_password.user_input }}"
         update_password: always
       tags: post
 
@@ -236,10 +242,21 @@
       tags: post
 
     # add local user
-    - name: add user "{{ new_username }}"
+    - pause:
+        prompt: "Enter a new local username: "
+      register: new_username
+      tags: post
+
+    - pause:
+        prompt: "Enter password: "
+        echo: no
+      register: new_username_password
+      tags: post
+
+    - name: add user "{{ new_username.user_input }}"
       user:
-        name: "{{ new_username }}"
-        password: "{{ new_username_password }}"
+        name: "{{ new_username.user_input }}"
+        password: "{{ new_username_password.user_input }}"
         groups: sudo
         append: yes
       tags: post
@@ -252,11 +269,6 @@
         regexp: "^# %sudo ALL="
         line: "%sudo ALL=(ALL) ALL"
         validate: "/usr/sbin/visudo -cf %s"
-      tags: post
-
-    - git:
-        repo: https://github.com/kewlfft/ansible-aur.git
-        dest: /usr/share/ansible/plugins/modules
       tags: post
 
     - user:
@@ -297,17 +309,14 @@
         - gdm.service
       tags: post
 
-    - name: Prompt for reboot
-      pause:
-        prompt: |
-          A system reboot is required to complete the setup.
-          Reboot? (y/n):
-      run_once: yes
-      register: confirmation
-      tags: post
-
-    - name: reboot the system
-      command: reboot
-      become: yes
-      when: confirmation.user_input is search('y.*')
+    # display message to user
+    - debug:
+        msg:
+          - "Run the following commands!"
+          - ""
+          - "exit"
+          - ""
+          - "umount -R /mnt"
+          - ""
+          - "reboot"
       tags: post
