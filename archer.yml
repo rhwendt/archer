@@ -87,7 +87,7 @@
         number: 1
         state: present
         label: gpt
-        fstype: fat32
+        fs_type: fat32
         flags: [ esp ]
         part_end: 513MiB
       tags: init
@@ -228,13 +228,15 @@
         prompt: "Enter new root password: "
         echo: no
       register: root_password
+      no_log: true
       tags: post
 
     - name: update root password
-      user:
-        name: root
-        password: "{{ root_password.user_input }}"
-        update_password: always
+      expect:
+        command: passwd
+        responses:
+          (?i)password: {{ root_password.user_input }}
+      no_log: true
       tags: post
 
     # regenerate initramfs
@@ -282,6 +284,7 @@
         prompt: "Enter password: "
         echo: no
       register: new_username_password
+      no_log: true
       tags: post
 
     - name: add user "{{ new_username.user_input }}"
@@ -290,6 +293,7 @@
         password: "{{ new_username_password.user_input }}"
         groups: sudo
         append: yes
+      no_log: true
       tags: post
 
     # update sudoers file
@@ -327,7 +331,7 @@
           - google-chrome
           - signal-desktop-bin
           - pamac-aur
-        skip_installed: true
+        state: present
       become: yes
       become_user: aur_builder
       tags: post
