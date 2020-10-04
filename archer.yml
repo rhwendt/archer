@@ -133,6 +133,17 @@
     # install essential packages
     - name: install essential packages
       shell: pacstrap /mnt base base-devel linux linux-firmware ansible git
+      async: 1000
+      poll: 0
+      register: pacman_sleeper
+      tags: init
+
+    - name: check pacman task
+      async_status:
+        jid: "{{ pacman_sleeper.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 30
       tags: init
 
     # generate fstab
@@ -219,9 +230,20 @@
           - vi
         state: present
         update_cache: yes
+      async: 1000
+      poll: 0
+      register: pacman_sleeper
       tags:
         - post
         - packages
+
+    - name: check pacman task
+      async_status:
+        jid: "{{ pacman_sleeper.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 30
+      tags: post
 
     # update root password
     - pause:
@@ -235,7 +257,7 @@
       expect:
         command: passwd
         responses:
-          (?i)password: {{ root_password.user_input }}
+          (?i)password: "{{ root_password.user_input }}"
       no_log: true
       tags: post
 
