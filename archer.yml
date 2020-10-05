@@ -123,8 +123,7 @@
       tags: init
 
     # install essential packages
-    # ansible / git is needed for post install
-    - name: install essential packages
+    - name: pacstrap packages
       shell: "{{ pacstrapped | pacstrap }}"
       tags: init
 
