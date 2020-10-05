@@ -39,6 +39,11 @@ Edit the variables in [inventory/host_vars/localhost.yml](inventory/host_vars/lo
 curl https://raw.githubusercontent.com/{YOUR_USERNAME}/archer/master/init.sh > init.sh
 ```
 
+Here is a short link incase you dont fork
+```
+curl https://git.io/JUFcb > init.sh
+```
+
 ### Source the script so it runs in the same shell process
 ```
 source init.sh
