@@ -328,7 +328,7 @@
       tags: post
 
     - name: Install trizen using makepkg, skip if trizen is already installed
-      aur: name=trizen use=makepkg skip_installed=true
+      aur: name=trizen use=makepkg state=present
       become: yes
       become_user: aur_builder
       tags: post
@@ -338,7 +338,6 @@
         use: trizen
         name:
           - google-chrome
-          - signal-desktop-bin
           - pamac-aur
         state: present
       become: yes
