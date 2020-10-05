@@ -16,15 +16,15 @@ Hit `E` at the boot screen and add `cow_spacesize=1G` at the end of the boot par
 ### Fork the repo
 Fork this repo so its easier to edit the variables.
 
-### Get the init script from your forked repo.
-```
-curl https://raw.githubusercontent.com/{YOUR_USERNAME}/archer/master/init.sh > init.sh
-```
-
 ### Edit the variables
 Edit the variables in `inventory/host_vars/localhost.yml`
 
 :warning: I wouldn't change the `pacstrapped` variable.
+
+### Get the init script from your forked repo.
+```
+curl https://raw.githubusercontent.com/{YOUR_USERNAME}/archer/master/init.sh > init.sh
+```
 
 ### Source the script so it runs in the same shell process
 ```
