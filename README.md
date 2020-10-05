@@ -17,7 +17,7 @@ Hit `E` at the boot screen and add `cow_spacesize=1G` at the end of the boot par
 Fork this repo so its easier to edit the variables.
 
 ### Edit the variables
-Edit the variables in `inventory/host_vars/localhost.yml`
+Edit the variables in [inventory/host_vars/localhost.yml](inventory/host_vars/localhost.yml)
 
 :warning: I wouldn't change the `pacstrapped` variable.
 
