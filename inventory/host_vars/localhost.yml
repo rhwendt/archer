@@ -2,3 +2,21 @@
 locale: en_US.UTF-8
 hostname: leviathan
 domain: thisbytes.net
+
+pacstrapped: base base-devel linux linux-firmware ansible git sudo "{{ cpu_vendor }}-ucode"
+
+packages:
+  - gnome
+  - gdm
+  - neovim
+  - networkmanager
+  - mumble
+  - signal-desktop
+
+packages_aur:
+  - google-chrome
+  - pamac-aur
+
+enabled_services:
+  - NetworkManager.service
+  - gdm.service

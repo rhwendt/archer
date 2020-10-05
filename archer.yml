@@ -12,7 +12,18 @@
         - init
         - post
 
-    # set the kyboard layout (default is EN) - skipping
+    # figure out the cpu vendor
+    - name: set cpu_vendor to amd
+      set_fact:
+        cpu_vendor: amd
+      when: "'AMD' in hostvars[inventory_hostname].ansible_processor[1]"
+      tags: init
+
+    - name: set cpu_vendor to intel
+      set_fact:
+        cpu_vendor: intel
+      when: "'Intel' in hostvars[inventory_hostname].ansible_processor[1]"
+      tags: init
 
     # verify the boot method
     - name: verify boot method
@@ -125,8 +136,9 @@
       tags: init
 
     # install essential packages
+    # ansible / git is needed for post install
     - name: install essential packages
-      shell: pacstrap /mnt base base-devel linux linux-firmware ansible git
+      shell: pacstrap /mnt "{{ pacstrapped }}"
       tags: init
 
     # generate fstab
@@ -156,19 +168,6 @@
     #
     # begin post install tasks
     #
-
-    # figure out the cpu vendor
-    - name: set cpu_vendor to amd
-      set_fact:
-        cpu_vendor: amd
-      when: "'AMD' in hostvars[inventory_hostname].ansible_processor[1]"
-      tags: post
-
-    - name: set cpu_vendor to intel
-      set_fact:
-        cpu_vendor: intel
-      when: "'Intel' in hostvars[inventory_hostname].ansible_processor[1]"
-      tags: post
 
     - name: set the hardware clock
       shell: hwclock --systohc
@@ -202,15 +201,28 @@
         dest: /etc/hosts
       tags: post
 
+    - name: add multilib
+      lineinfile:
+        dest: "/etc/pacman.conf"
+        state: "present"
+        line: "[multilib]"
+        regexp: "^\\[multilib\\]"
+        insertafter: "^#\\[multilib\\]"
+      tags: post
+
+    - name: add multilib (cont)
+      lineinfile:
+        dest: "/etc/pacman.conf"
+        state: "present"
+        line: "Include = /etc/pacman.d/mirrorlist"
+        insertafter: "^\\[multilib\\]"
+        regexp: "Include = /etc/pacman.d/mirrorlist"
+      tags: post
+
     # install packages
     - name: install remaining packages
       community.general.pacman:
-        name:
-          - gnome
-          - gdm
-          - sudo
-          - "{{ cpu_vendor }}-ucode"
-          - vi
+        name: "{{ packages }}"
         state: present
         update_cache: yes
       tags:
@@ -311,6 +323,7 @@
         validate: "/usr/sbin/visudo -cf %s"
       tags: post
 
+
     - user:
         name: aur_builder
         group: wheel
@@ -332,9 +345,7 @@
     - name: install packages from the AUR
       aur:
         use: trizen
-        name:
-          - google-chrome
-          - pamac-aur
+        name: "{{ packages_aur }}"
         state: present
       become: yes
       become_user: aur_builder
@@ -343,9 +354,7 @@
     # enable services
     - name: enable services
       shell: "systemctl enable {{ item }}"
-      with_items:
-        - NetworkManager.service
-        - gdm.service
+      with_items: "{{ enabled_services }}"
       tags: post
 
     # display message to user
