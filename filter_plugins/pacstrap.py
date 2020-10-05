@@ -12,5 +12,5 @@ def generate_pacstrap(packages_list):
 class FilterModule(object):
     def filters(self):
         return {
-            'pactrap': generate_pacstrap,
+            'pacstrap': generate_pacstrap,
         }
