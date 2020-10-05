@@ -234,9 +234,15 @@
     - name: hash root password
       command: python3 -c 'import crypt;print(crypt.crypt("{{root_password.user_input}}", crypt.mksalt(crypt.METHOD_SHA512)))'
       register: password_hash
+      no_log: true
+      tags: post
 
-    - debug:
-        var: password_hash
+    - name: update root password
+      user:
+        name: root
+        password: "{{ password_hash.stdout }}"
+      no_log: true
+      tags: post
 
     # regenerate initramfs
     - name: regenerate initramfs
@@ -286,10 +292,16 @@
       no_log: true
       tags: post
 
+    - name: hash "{{ new_username.user_input }}" password
+      command: python3 -c 'import crypt;print(crypt.crypt("{{new_username_password.user_input}}", crypt.mksalt(crypt.METHOD_SHA512)))'
+      register: password_hash
+      no_log: true
+      tags: post
+
     - name: add user "{{ new_username.user_input }}"
       user:
         name: "{{ new_username.user_input }}"
-        password: "{{ new_username_password.user_input }}"
+        password: "{{ password_hash.stdout }}"
         groups: sudo
         append: yes
       no_log: true
