@@ -3,6 +3,12 @@ locale: en_US.UTF-8
 hostname: leviathan
 domain: thisbytes.net
 
+# cpu vendor name
+cpu_vendor: amd
+
+# these will get installed during pacstrap
+# ansible git are needed for post script
+# microcode is added before initramfs
 pacstrapped:
   - base
   - base-devel
@@ -10,9 +16,10 @@ pacstrapped:
   - linux-firmware
   - ansible
   - git
-  - sudo
-  - "{{ cpu_vendor }}-ucode"
+  - "{{ cpu_vendor | lower }}-ucode"
 
+# add any packages from the normal repositories
+# this also includes / enables multilib
 packages:
   - gnome
   - gdm
@@ -20,11 +27,15 @@ packages:
   - networkmanager
   - mumble
   - signal-desktop
+  - sudo
 
+# add any aur packages you want installed
+# if its not an aur package this will cause the playbook to fail
 packages_aur:
   - google-chrome
   - pamac-aur
 
+# add any services you wish to start on boot
 enabled_services:
   - NetworkManager.service
   - gdm.service

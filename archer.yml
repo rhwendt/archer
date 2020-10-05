@@ -12,19 +12,6 @@
         - init
         - post
 
-    # figure out the cpu vendor
-    - name: set cpu_vendor to amd
-      set_fact:
-        cpu_vendor: amd
-      when: "'AMD' in hostvars[inventory_hostname].ansible_processor[1]"
-      tags: init
-
-    - name: set cpu_vendor to intel
-      set_fact:
-        cpu_vendor: intel
-      when: "'Intel' in hostvars[inventory_hostname].ansible_processor[1]"
-      tags: init
-
     # verify the boot method
     - name: verify boot method
       command: ls /sys/firmware/efi/efivars
