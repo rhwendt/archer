@@ -309,7 +309,6 @@
         validate: "/usr/sbin/visudo -cf %s"
       tags: post
 
-
     - user:
         name: aur_builder
         group: wheel
