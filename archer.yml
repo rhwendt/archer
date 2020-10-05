@@ -103,14 +103,12 @@
       tags: init
 
     # format the partitions
-    - name: format the boot partition
+    - name: format the boot partition fat32
       shell: mkfs.fat -F32 "{{selected_disk.user_input}}1"
       tags: init
 
-    - name: format the root partition
-      community.general.filesystem:
-        fstype: ext4
-        dev: "{{selected_disk.user_input}}2"
+    - name: format the root partition ext4
+      shell: mkfs.ext4 "{{selected_disk.user_input}}2"
       tags: init
 
     # mount the root partition
