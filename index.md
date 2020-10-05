@@ -1,5 +1,5 @@
 # archer
-A arch linux installing playbook
+An arch linux installing playbook
 
 ## Arch ISO settings
 **do not forget this step or packages wont install**
