@@ -138,7 +138,7 @@
     # install essential packages
     # ansible / git is needed for post install
     - name: install essential packages
-      shell: pacstrap /mnt "{{ pacstrapped }}"
+      shell: "{{ pacstrapped | pacstrap }}"
       tags: init
 
     # generate fstab

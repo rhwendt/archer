@@ -1,10 +1,7 @@
 #!/usr/bin/zsh
 
-# update repos
-pacman -Sy
-
 # install stuff
-pacman -S git ansible --noconfirm
+pacman -Sy git ansible --noconfirm
 
 # clone repos
 git clone https://github.com/rhwendt/archer.git
@@ -16,5 +13,5 @@ ansible-galaxy collection install community.general
 git clone https://github.com/kewlfft/ansible-aur.git ~/.ansible/plugins/modules/aur
 
 # run playbook
-ansible-playbook archer/archer.yml --tags init
+cd archer && ansible-playbook archer.yml --tags init
 

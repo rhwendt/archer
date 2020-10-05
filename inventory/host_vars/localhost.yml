@@ -3,7 +3,15 @@ locale: en_US.UTF-8
 hostname: leviathan
 domain: thisbytes.net
 
-pacstrapped: base base-devel linux linux-firmware ansible git sudo "{{ cpu_vendor }}-ucode"
+pacstrapped:
+  - base
+  - base-devel
+  - linux
+  - linux-firmware
+  - ansible
+  - git
+  - sudo
+  - "{{ cpu_vendor }}-ucode"
 
 packages:
   - gnome
