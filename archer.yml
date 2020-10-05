@@ -2,10 +2,6 @@
 - name: setup arch linux
   hosts: localhost
   connection: local
-  vars:
-    locale: en_US.UTF-8
-    hostname: leviathan
-    domain: thisbytes.net
   tasks:
     # get hardware facts
     - name: collect only facts about hardware
