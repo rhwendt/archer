@@ -6,6 +6,19 @@ Some caveats I should mention.
 * I dont use swap space. It's 2020 and we have gobs of memory.
 * I dont really have a good way to handle the arch-chroot. As a result we have and init and post script.
 
+#### Default packages
+Here is a list of the default packages if you do not edit them.
+- ansible
+- git
+- gnome
+- gdm
+- neovim
+- networkmanager
+- mumble
+- signal-desktop
+- google-chrome
+- pamac-aur
+
 **Note:** This is not meant to cover everyone's use case. If you want to make this better that would be awesome.
 
 ### Arch ISO settings
