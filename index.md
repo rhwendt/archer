@@ -8,6 +8,6 @@ Hit `E` at the boot screen and add `cow_spacesize=1G` at the end of the boot par
 
 ## Get the init script and source it.
 ```
-curl https://git.io/JUFcb > init.sh
+curl -L https://git.io/JUFcb > init.sh
 source init.sh
 ```
