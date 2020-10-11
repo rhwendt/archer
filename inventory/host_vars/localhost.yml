@@ -12,8 +12,6 @@ pacstrapped:
   - base-devel
   - linux
   - linux-firmware
-  - ansible
-  - git
   - "{{ ucode }}"
 
 # add any packages from the normal repositories
@@ -21,6 +19,7 @@ pacstrapped:
 packages:
   - gnome
   - gdm
+  - git
   - neovim
   - networkmanager
   - mumble
