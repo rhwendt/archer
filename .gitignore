@@ -1,5 +1,5 @@
 # dont track these files
-secret.yml
+system.yml
 .vaultpass
 
 # Byte-compiled / optimized / DLL files
