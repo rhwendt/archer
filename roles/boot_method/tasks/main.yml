@@ -1,0 +1,16 @@
+---
+# tasks file for boot_method
+- name: verify boot method
+  command: ls /sys/firmware/efi/efivars
+  register: boot_method
+  ignore_errors: true
+
+- name: set efi to true if boot method is efi
+  set_fact:
+    efi: true
+  when: boot_method.rc == 0
+
+- name: set efi to false if efivars dont exist
+  set_fact:
+    efi: false
+  when: boot_method.rc > 1

@@ -1,0 +1,63 @@
+---
+# tasks file for disks
+- name: output disks
+  debug:
+    msg: "{{ ansible_facts['devices'] | disks }}"
+
+- name: select a disk
+  pause:
+    prompt: "Select device to partition. Example: /dev/sdx"
+  register: selected_disk
+  failed_when: "selected_disk.user_input is not match('^(\/dev\/sd[a-z]{1})$')"
+
+- name: read device information
+  community.general.parted: "device={{ selected_disk.user_input }} unit=MiB"
+  register: disk_info
+
+- name: remove all partitions from disk
+  community.general.parted:
+    device: "{{ selected_disk.user_input }}"
+    number: "{{ item.num }}"
+    state: absent
+  loop: "{{ disk_info.partitions }}"
+
+# partition the disk
+- name: create the boot partition
+  community.general.parted:
+    device: "{{selected_disk.user_input}}"
+    number: 1
+    state: present
+    label: gpt
+    fs_type: fat32
+    flags: [ esp ]
+    part_end: 513MiB
+
+- name: create the root partition
+  community.general.parted:
+    device: "{{selected_disk.user_input}}"
+    number: 2
+    state: present
+    label: gpt
+    fs_type: ext4
+    part_start: 513MiB
+
+# format the partitions
+- name: format the boot partition fat32
+  shell: mkfs.fat -F32 "{{selected_disk.user_input}}1"
+
+- name: format the root partition ext4
+  shell: mkfs.ext4 "{{selected_disk.user_input}}2"
+
+# mount the root partition
+- name: mount the root partition to /mnt
+  shell: mount "{{selected_disk.user_input}}2" /mnt
+
+# create the /mnt/boot directory
+- name: create the /mnt/boot directory
+  file:
+    path: /mnt/boot
+    state: directory
+
+# mount the boot partition
+- name: mount the boot partition to /mnt/boot
+  shell: mount "{{selected_disk.user_input}}1" /mnt/boot

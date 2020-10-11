@@ -1,0 +1,4 @@
+---
+- name: enable services
+  command: "arch-chroot /mnt systemctl enable {{ item }}"
+  with_items: "{{ enabled_services }}"

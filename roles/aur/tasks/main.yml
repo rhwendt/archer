@@ -1,0 +1,38 @@
+# bit of a hack to install aur packages
+# removing after at the end of this role
+- name: add "{{ user }}" to sudoers for pacman
+  lineinfile:
+    path: "/mnt/etc/sudoers.d/11-install-{{ user }}"
+    line: '{{ user }} ALL=(ALL) NOPASSWD: /usr/bin/pacman'
+    create: yes
+    validate: '/mnt/usr/sbin/visudo -cf %s'
+
+- name: git clone yay
+  git:
+    repo: "https://aur.archlinux.org/yay.git"
+    dest: "/mnt/home/{{ user }}/build"
+
+- name: update ownership of build dir
+  command: "arch-chroot /mnt chown -R {{ user }}:{{ user }} /home/{{ user }}"
+
+- name: build yay
+  command: arch-chroot /mnt runuser -l "{{ user }}" -c "cd /home/{{ user }}/build && makepkg -si --noconfirm"
+
+- name: clean up build dir
+  command: "arch-chroot /mnt rm -rf /home/{{ user }}/build"
+
+- name: install aur packages
+  command: "{{ packages_aur | yay(user) }}"
+
+- name: fix polkit auth for pamac-manger
+  lineinfile:
+    path: /mnt/usr/share/polkit-1/actions/org.manjaro.pamac.policy
+    regexp: "^      <allow_active>auth_admin_keep</allow_active>"
+    line: "      <allow_active>auth_self_keep</allow_active>"
+    backrefs: yes
+
+# removing hack
+- name: remove "{{ user }}" from NOPASSWD pacman
+  file:
+    path: "/mnt/etc/sudoers.d/11-install-{{ user }}"
+    state: absent

@@ -1,0 +1,8 @@
+---
+- name: setup disks for efi booting
+  import_tasks: efi.yml
+  when: efi == true
+
+- name: setup disks for legacy booting
+  import_tasks: legacy.yml
+  when: efi == false

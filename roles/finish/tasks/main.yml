@@ -1,0 +1,28 @@
+---
+- name: add sudo group to "{{ user }}"
+  command: arch-chroot /mnt usermod -a -G sudo "{{ user }}"
+
+- name: allow users in group sudo elevated privelages
+  lineinfile:
+    path: /mnt/etc/sudoers
+    state: present
+    regexp: "# %sudo ALL=(ALL) ALL"
+    line: "%sudo ALL=(ALL) ALL"
+    validate: "/mnt/usr/sbin/visudo -cf %s"
+
+- name: cleanup
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - .vaultpass
+    - secret.yml
+
+- name: prompt for reboot
+  pause:
+    prompt: "reboot? (y/n)"
+  register: reboot
+
+- name: reboot the machine
+  reboot:
+  when: "reboot.user_input is match('^[yY]')"

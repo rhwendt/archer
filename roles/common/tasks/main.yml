@@ -1,0 +1,76 @@
+---
+- name: install ucode update for Intel
+  set_fact: ucode="intel-ucode"
+  when: "'GenuineIntel' in ansible_facts['processor']"
+
+- name: install ucode update for AMD
+  set_fact: ucode="amd-ucode"
+  when: "'AuthenticAMD' in ansible_facts['processor']"
+
+- name: update the system clock
+  command: timedatectl set-ntp true
+
+- name: pacstrap packages - please wait this may take a while
+  shell: "{{ pacstrapped | pacman(pacstrap=True) }}"
+
+- name: generate fstab
+  shell: genfstab -U /mnt >> /mnt/etc/fstab
+
+- name: set the timezone
+  command: "arch-chroot /mnt ln -sf /usr/share/zoneinfo/{{ timezone }}  /etc/localtime"
+  register: chroot_timezone
+  changed_when: chroot_timezone.rc == 0
+
+- name: update the hwclock inside chroot
+  command: arch-chroot /mnt hwclock --systohc
+  register: chroot_hwclock
+  changed_when: chroot_hwclock.rc == 0
+
+- name: configure locale.gen
+  lineinfile:
+    dest: /mnt/etc/locale.gen
+    line: "{{ locale }}"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: run locale-gen inside chroot
+  command: arch-chroot /mnt locale-gen
+  register: chroot_locale_gen
+  changed_when: chroot_locale_gen.rc == 0
+
+- name: set the lang
+  copy:
+    dest: /mnt/etc/locale.conf
+    content: "LANG={{ locale.split()[0] }}"
+
+- name: create /etc/hostname
+  copy:
+    dest: /mnt/etc/hostname
+    content: "{{ hostname }}"
+
+- name: create /etc/hosts
+  template:
+    src: hosts.j2
+    dest: /mnt/etc/hosts
+
+- name: add multilib
+  lineinfile:
+    dest: "/mnt/etc/pacman.conf"
+    state: "present"
+    line: "[multilib]"
+    regexp: "^\\[multilib\\]"
+    insertafter: "^#\\[multilib\\]"
+
+- name: add multilib (cont)
+  lineinfile:
+    dest: "/mnt/etc/pacman.conf"
+    state: "present"
+    line: "Include = /etc/pacman.d/mirrorlist"
+    insertafter: "^\\[multilib\\]"
+    regexp: "Include = /etc/pacman.d/mirrorlist"
+
+- name: install remaining packages inside chroot - please wait this may take a while
+  command: "{{ packages | pacman }}"
+  register: chroot_remaining_packages
+  changed_when: chroot_remaining_packages.rc == 0

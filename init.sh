@@ -9,9 +9,9 @@ git clone https://github.com/rhwendt/archer.git
 # install galaxy collection
 ansible-galaxy collection install community.general
 
-# get ansible-aur
-git clone https://github.com/kewlfft/ansible-aur.git ~/.ansible/plugins/modules/aur
+# configure users
+cd archer && python scripts/configure_users.py
 
 # run playbook
-cd archer && ansible-playbook archer.yml --tags init
+ansible-playbook archer.yml
 

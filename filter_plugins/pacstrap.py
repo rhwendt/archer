@@ -1,9 +1,14 @@
 #!/usr/bin/python
 
 
-def generate_pacstrap(packages_list):
-    command = "pacstrap /mnt"
-    for package in packages_list:
+def generate_pac(package_list, pacstrap=False):
+    if pacstrap:
+        command = "pacstrap /mnt"
+    else:
+        # bit of a hack
+        command = "arch-chroot /mnt pacman -Sy --noconfirm"
+
+    for package in package_list:
         command += f" {package}"
 
     return command
@@ -12,5 +17,5 @@ def generate_pacstrap(packages_list):
 class FilterModule(object):
     def filters(self):
         return {
-            'pacstrap': generate_pacstrap,
+            'pacman': generate_pac,
         }

@@ -1,3 +1,7 @@
+# dont track these files
+secret.yml
+.vaultpass
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

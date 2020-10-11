@@ -1,0 +1,6 @@
+title Arch Linux
+linux /vmlinuz-linux
+initrd /{{ ucode }}.img
+initrd /initramfs-linux.img
+options root="UUID={{ ansible_facts['mounts'] | rootfs_uuid }}" rw
+

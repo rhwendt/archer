@@ -1,10 +1,8 @@
 ---
-locale: en_US.UTF-8
+locale: en_US.UTF-8 UTF-8
+timezone: America/New_York
 hostname: leviathan
 domain: thisbytes.net
-
-# cpu vendor name
-cpu_vendor: amd
 
 # these will get installed during pacstrap
 # ansible git are needed for post script
@@ -16,7 +14,7 @@ pacstrapped:
   - linux-firmware
   - ansible
   - git
-  - "{{ cpu_vendor | lower }}-ucode"
+  - "{{ ucode }}"
 
 # add any packages from the normal repositories
 # this also includes / enables multilib
