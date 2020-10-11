@@ -17,7 +17,7 @@
   shell: genfstab -U /mnt >> /mnt/etc/fstab
 
 - name: set the timezone
-  command: "arch-chroot /mnt ln -sf /usr/share/zoneinfo/{{ timezone }}  /etc/localtime"
+  command: "arch-chroot /mnt ln -sf /usr/share/zoneinfo/{{ system.timezone }}  /etc/localtime"
   register: chroot_timezone
   changed_when: chroot_timezone.rc == 0
 
@@ -47,7 +47,7 @@
 - name: create /etc/hostname
   copy:
     dest: /mnt/etc/hostname
-    content: "{{ hostname }}"
+    content: "{{ system.hostname }}"
 
 - name: create /etc/hosts
   template:
