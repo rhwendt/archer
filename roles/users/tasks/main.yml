@@ -12,6 +12,6 @@
     user: "{{ system.username }}"
 
 - name: add user "{{ user }}"
-  command: arch-chroot /mnt useradd -m -U -p "{{ system.password | string | hash_password }}" "{{ user }}"
+  command: arch-chroot /mnt useradd -m -U -p "{{ system.user_password | string | hash_password }}" "{{ user }}"
 
 
