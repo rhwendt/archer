@@ -1,8 +1,5 @@
 ---
 locale: en_US.UTF-8 UTF-8
-timezone: America/New_York
-hostname: leviathan
-domain: thisbytes.net
 
 # these will get installed during pacstrap
 # ansible git are needed for post script
@@ -12,18 +9,17 @@ pacstrapped:
   - base-devel
   - linux
   - linux-firmware
-  - ansible
-  - git
   - "{{ ucode }}"
 
 # add any packages from the normal repositories
 # this also includes / enables multilib
 packages:
-  - gnome
   - gdm
+  - git
+  - gnome
+  - mumble
   - neovim
   - networkmanager
-  - mumble
   - signal-desktop
   - sudo
 

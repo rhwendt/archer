@@ -1,5 +1,18 @@
 ---
-# tasks file for boot_method
+- name: include system.yml
+  include_vars:
+    file: system.yml
+    name: system
+
+- name: ping archlinux.org
+  command: ping archlinux.org -c 3
+  register: ping_arch
+
+- name: check if the ping failed
+  debug:
+    var: ping_arch.stdout_lines
+  failed_when: ping_arch.rc > 1
+
 - name: verify boot method
   command: ls /sys/firmware/efi/efivars
   register: boot_method

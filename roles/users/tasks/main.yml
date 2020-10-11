@@ -1,12 +1,7 @@
 ---
-- name: include secret.yml
-  include_vars:
-    file: secret.yml
-    name: secrets
-
 # inline hack using string to change from vault unicode to string
 - name: change root password
-  command: arch-chroot /mnt echo "root:{{ secrets.root_password | string | hash_password }}" chpasswd -e
+  command: arch-chroot /mnt echo "root:{{ system.root_password | string | hash_password }}" chpasswd -e
   no_log: true
 
 - name: add sudo group
@@ -14,9 +9,9 @@
 
 - name: set user fact
   set_fact:
-    user: "{{ secrets.username }}"
+    user: "{{ system.username }}"
 
 - name: add user "{{ user }}"
-  command: arch-chroot /mnt useradd -m -U -p "{{ secrets.password | string | hash_password }}" "{{ user }}"
+  command: arch-chroot /mnt useradd -m -U -p "{{ system.password | string | hash_password }}" "{{ user }}"
 
 

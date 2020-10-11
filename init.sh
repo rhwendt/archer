@@ -10,7 +10,7 @@ git clone https://github.com/rhwendt/archer.git
 ansible-galaxy collection install community.general
 
 # configure users
-cd archer && python scripts/configure_users.py
+cd archer && python scripts/configure_system.py
 
 # run playbook
 ansible-playbook archer.yml

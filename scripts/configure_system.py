@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import getpass
 import string
+import subprocess
 import random
 import os
 
@@ -32,19 +33,36 @@ def main():
         p = generate_random_password()
         file.write("'" + p + "'")
 
+    # set the hostname
+    hostname = input("Enter hostname for new system: ")
+    print()
+    # set the domain
+    domain = input("Enter the domain for new system: ")
+    print()
+    # set the timezone
+    result = subprocess.run(['tzselect'], stdout=subprocess.PIPE)
+    timezone = result.stdout.decode('utf-8')
+    print()
+
     # validate root password
     root_password = validate_password()
 
     # get new username for system
     username = input("Enter a username for new system: ")
     msg = f"Enter a password for '{username}': "
-    password = validate_password(username, msg)
+    user_password = validate_password(username, msg)
 
-    # write ansible vault information
+    # write non sensitive information
+    with open('system.yml', 'a+') as file:
+        file.write(f"username: {username}\n")
+        file.write(f"hostname: {hostname}\n")
+        file.write(f"domain: {domain}\n")
+        file.write(f"timezone: {timezone}\n")
+
+    # write sensitive information to a vault
     ansible_prefix = "ansible-vault encrypt_string -n"
-    os.system(f"{ansible_prefix} root_password {root_password} >> secret.yml")
-    os.system(f"{ansible_prefix} username {username} >> secret.yml")
-    os.system(f"{ansible_prefix} password {password} >> secret.yml")
+    os.system(f"{ansible_prefix} root_password {root_password} >> system.yml")
+    os.system(f"{ansible_prefix} user_password {user_password} >> system.yml")
 
 
 if __name__ == '__main__':

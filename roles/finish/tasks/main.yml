@@ -16,7 +16,7 @@
     state: absent
   loop:
     - .vaultpass
-    - secret.yml
+    - system.yml
 
 - name: prompt for reboot
   pause:

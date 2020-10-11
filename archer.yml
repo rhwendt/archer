@@ -3,8 +3,7 @@
   hosts: localhost
   connection: local
   roles:
-    - check_internet
-    - boot_method
+    - startup
     - disks
     - common
     - bootloader
