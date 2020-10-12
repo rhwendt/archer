@@ -1,5 +1,7 @@
 # archer
-An arch linux installing playbook
+My Arch Linux installer using Ansible
+
+Only EFI booting is supported now.
 
 ## Arch ISO settings
 **do not forget this step or packages wont install**
