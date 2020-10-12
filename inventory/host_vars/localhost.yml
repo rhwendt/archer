@@ -2,7 +2,6 @@
 locale: en_US.UTF-8 UTF-8
 
 # these will get installed during pacstrap
-# ansible git are needed for post script
 # microcode is added before initramfs
 pacstrapped:
   - base
