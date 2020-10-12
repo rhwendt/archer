@@ -3,6 +3,7 @@ This playbook tries to make it easier to install arch linux :tada:
 
 ### Caveats
 Only EFI boot is supported now.
+
 No swap space is partitioned.
 
 #### Default packages
