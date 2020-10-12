@@ -1,6 +1,10 @@
 # archer
 This playbook tries to make it easier to install arch linux :tada:
 
+### Caveats
+Only EFI boot is supported now.
+No swap space is partitioned.
+
 #### Default packages
 Here is a list of the default packages if you do not edit them.
 - gdm
