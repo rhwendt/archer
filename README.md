@@ -49,6 +49,5 @@ source init.sh
 ```
 
 ### Follow the prompts
-You will need to run some commands manually. These revolve around moving into and out of chroot environment.
 
 :warning: **Pick the correct drive to install on! I am not responsible for your lost data** :warning:
